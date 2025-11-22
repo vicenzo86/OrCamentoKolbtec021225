@@ -46,7 +46,7 @@ const QuotePreview: React.FC<QuotePreviewProps> = ({ data }) => {
   };
 
   return (
-    <div className="bg-white text-black p-8 md:p-10 print:p-[20mm] shadow-2xl print-area max-w-[210mm] mx-auto min-h-[297mm] text-[11px] font-sans leading-snug relative">
+    <div className="bg-white text-black p-8 md:p-10 print:pt-[20mm] print:px-[20mm] print:pb-[40mm] shadow-2xl print-area max-w-[210mm] mx-auto min-h-[297mm] text-[11px] font-sans leading-snug relative">
       
       {/* Header - Keep together */}
       <div className="break-inside-avoid mb-6">
