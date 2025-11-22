@@ -15,33 +15,48 @@
       }
       @media print {
         @page { 
-            margin: 0;
+            margin: 20mm; /* Sets standard A4 margins for ALL pages */
             size: auto; 
         }
-        body, html {
-            height: auto !important;
-            overflow: visible !important;
+        
+        /* Reset layout containers to avoid interfering with print flow */
+        body, html, #root, main {
+            width: 100%;
+            margin: 0 !important;
+            padding: 0 !important;
             background-color: white !important;
+            display: block !important; /* Remove grid/flex gaps from main layout */
+            overflow: visible !important;
         }
+
+        /* Hide everything by default */
         body * {
             visibility: hidden;
         }
-        /* Only show the print-area and its children */
+
+        /* Show only the print area and its children */
         .print-area, .print-area * {
             visibility: visible;
         }
+
         .print-area {
-            position: absolute;
-            left: 0;
-            top: 0;
+            position: relative; /* Allows natural page breaks, unlike absolute */
+            left: auto;
+            top: auto;
             width: 100%;
-            margin: 0;
-            padding: 0;
             box-shadow: none !important;
             border: none !important;
+            display: block;
         }
+
         .no-print { 
             display: none !important; 
+        }
+        
+        /* Ensure background colors (like table headers) print */
+        * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
         }
       }
     </style>
