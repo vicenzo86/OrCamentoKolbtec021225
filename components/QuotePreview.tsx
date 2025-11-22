@@ -46,201 +46,232 @@ const QuotePreview: React.FC<QuotePreviewProps> = ({ data }) => {
   };
 
   return (
-    <div className="bg-white text-black p-8 md:p-10 print:pt-[40mm] print:px-[20mm] print:pb-[40mm] shadow-2xl print-area max-w-[210mm] mx-auto min-h-[297mm] text-[11px] font-sans leading-snug relative">
+    <div className="bg-white text-black shadow-2xl print-area max-w-[210mm] mx-auto min-h-[297mm] text-[11px] font-sans leading-snug relative print:p-0">
       
-      {/* Header - Keep together */}
-      <div className="break-inside-avoid mb-6">
-        <div className="flex justify-between items-start">
-            {/* Left - Client Address Scope */}
-            <div className="w-1/2 mt-0">
-                <div className="font-bold text-sm mb-1">À</div>
-                <div className="font-bold text-base mb-1">{data.client.name}</div>
-                <div>{data.client.contact}</div>
-                <div>{data.client.phone}</div>
-                <div className="mt-2">
-                    <span className="font-bold">Data:</span> {data.date}
-                </div>
-                <div>
-                    <span className="font-bold">Referência:</span> {data.reference}
-                </div>
-                <div className="mt-2">
-                    <span className="font-bold">Assunto:</span> {data.subject}
-                </div>
-            </div>
+      {/* Table structure ensures spacers repeat on every page (thead/tfoot) */}
+      <table className="w-full border-collapse">
+        <thead>
+            <tr>
+                <td>
+                    {/* TOP MARGIN SPACER - Repeats on every page */}
+                    {/* 10mm is small but safe, satisfying "subir o maximo possivel" while keeping space on page 2 */}
+                    <div className="h-[10mm] print:h-[10mm]"></div> 
+                </td>
+            </tr>
+        </thead>
 
-            {/* Right - Company Info */}
-            <div className="w-1/2 text-right flex flex-col items-end mt-0">
-                {data.company.logoUrl ? (
-                    <img src={data.company.logoUrl} alt="Logo" className="h-32 w-auto object-contain mb-1 object-right"/>
-                ) : (
-                    <h1 className="text-3xl font-bold text-blue-800 italic mb-4">{data.company.name}</h1>
-                )}
-                
-                <div className="text-xs text-gray-700 mt-0">
-                    <div className="font-bold">{data.company.name}</div>
-                    <div>{data.company.address}</div>
-                    <div>Tel.: {data.company.phone}</div>
-                    <a href={`https://${data.company.site}`} className="text-blue-600 underline">{data.company.site}</a>
-                </div>
-            </div>
-        </div>
+        <tbody>
+            <tr>
+                <td className="align-top p-8 md:p-10 print:p-0 print:px-[20mm]">
+                    
+                    {/* MAIN CONTENT */}
+                    
+                    {/* Header - Keep together */}
+                    <div className="break-inside-avoid mb-6">
+                        <div className="flex justify-between items-start">
+                            {/* Left - Client Address Scope */}
+                            <div className="w-1/2 mt-0">
+                                <div className="font-bold text-sm mb-1">À</div>
+                                <div className="font-bold text-base mb-1">{data.client.name}</div>
+                                <div>{data.client.contact}</div>
+                                <div>{data.client.phone}</div>
+                                <div className="mt-2">
+                                    <span className="font-bold">Data:</span> {data.date}
+                                </div>
+                                <div>
+                                    <span className="font-bold">Referência:</span> {data.reference}
+                                </div>
+                                <div className="mt-2">
+                                    <span className="font-bold">Assunto:</span> {data.subject}
+                                </div>
+                            </div>
 
-        <div className="mt-6 border-t border-black pt-4">
-            <p>Prezado {data.client.contact.replace('A/C ', '')}</p>
-            <p>Conforme solicitado, enviamos abaixo nossa proposta de materiais, conforme descrição abaixo:</p>
-        </div>
-      </div>
+                            {/* Right - Company Info */}
+                            <div className="w-1/2 text-right flex flex-col items-end mt-0">
+                                {data.company.logoUrl ? (
+                                    <img src={data.company.logoUrl} alt="Logo" className="h-32 w-auto object-contain mb-1 object-right"/>
+                                ) : (
+                                    <h1 className="text-3xl font-bold text-blue-800 italic mb-4">{data.company.name}</h1>
+                                )}
+                                
+                                <div className="text-xs text-gray-700 mt-0">
+                                    <div className="font-bold">{data.company.name}</div>
+                                    <div>{data.company.address}</div>
+                                    <div>Tel.: {data.company.phone}</div>
+                                    <a href={`https://${data.company.site}`} className="text-blue-600 underline">{data.company.site}</a>
+                                </div>
+                            </div>
+                        </div>
 
-      {/* SECTIONS LOOP */}
-      {data.sections.map((section) => {
-          const productsTotal = calculateSectionProductsTotal(section); // Items only
-          const finalSectionTotal = calculateSectionFinalTotal(section); // Items + DIFAL/ST
-          const totalPerSqm = section.areaSize > 0 ? finalSectionTotal / section.areaSize : 0;
-
-          return (
-            /* break-inside-avoid ensures a section (title + table + totals) tries to stay on one page */
-            <div key={section.id} className="mb-6 break-inside-avoid page-break-block">
-                {/* Section Title Header */}
-                <div className="font-bold bg-gray-100 p-1 border border-black mb-1 text-xs">
-                    {section.title}: {formatNumber(section.areaSize)} m² {section.description}
-                </div>
-
-                {/* Table */}
-                <table className="w-full border-collapse border border-black text-[10px]">
-                    <thead>
-                        <tr className="text-center font-bold">
-                            <th className="border border-black p-1 w-[15%]">Produto</th>
-                            <th className="border border-black p-1 w-[20%]">Descrição</th>
-                            <th className="border border-black p-1 w-[15%]">Embalagem (kg)</th>
-                            <th className="border border-black p-1 w-[8%]">R$ / kg</th>
-                            <th className="border border-black p-1 w-[5%]">Ipi</th>
-                            <th className="border border-black p-1 w-[5%]">Icms</th>
-                            <th className="border border-black p-1 w-[5%]">Kits</th>
-                            <th className="border border-black p-1 w-[10%]">Quant, (kg)</th>
-                            <th className="border border-black p-1 w-[12%]">Total (R$)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {section.items.map((item) => {
-                            const totalWeight = item.kits * item.packagingWeight;
-                            const basePrice = totalWeight * item.pricePerKg;
-                            const ipiAmount = basePrice * (item.ipi / 100);
-                            const totalPrice = basePrice + ipiAmount;
-
-                            return (
-                                <tr key={item.id} className="text-center">
-                                    <td className="border border-black p-1 font-bold">{item.product}</td>
-                                    <td className="border border-black p-1 text-left">{item.description}</td>
-                                    <td className="border border-black p-1 text-left pl-2">
-                                        <span className="mr-1">{item.packagingType}</span>
-                                        <span className="float-right">{formatNumber(item.packagingWeight, 3)} kg</span>
-                                    </td>
-                                    <td className="border border-black p-1">
-                                        <span className="float-left">R$</span>
-                                        {formatNumber(item.pricePerKg)} / kg
-                                    </td>
-                                    <td className="border border-black p-1">{formatNumber(item.ipi)}%</td>
-                                    <td className="border border-black p-1">{formatNumber(item.icms)}%</td>
-                                    <td className="border border-black p-1">{item.kits}</td>
-                                    <td className="border border-black p-1">{formatNumber(totalWeight, 3)}</td>
-                                    <td className="border border-black p-1 text-right">{formatCurrency(totalPrice)}</td>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
-
-                {/* Supplemental Fields (DIFAL, ST) - RENDER BEFORE TOTAL */}
-                {(section.supplemental || []).map((sup) => (
-                    <div key={sup.id} className="border border-t-0 border-black flex justify-between items-center px-2 py-1">
-                        <span className="font-bold">{sup.description}</span>
-                        <span className="font-bold">{formatCurrency(sup.value)}</span>
+                        <div className="mt-6 border-t border-black pt-4">
+                            <p>Prezado {data.client.contact.replace('A/C ', '')}</p>
+                            <p>Conforme solicitado, enviamos abaixo nossa proposta de materiais, conforme descrição abaixo:</p>
+                        </div>
                     </div>
-                ))}
 
-                {/* Section Totals */}
-                <div className="border border-t-0 border-black flex justify-between items-center px-2 py-1 bg-gray-50">
-                    <span className="font-bold">Total do item</span>
-                    <span className="font-bold">{formatCurrency(finalSectionTotal)}</span>
-                </div>
-                <div className="border border-t-0 border-black flex justify-between items-center px-2 py-1">
-                    <span className="font-bold">Total do item por m²</span>
-                    <span className="font-bold">{formatCurrency(totalPerSqm)}</span>
-                </div>
+                    {/* SECTIONS LOOP */}
+                    {data.sections.map((section) => {
+                        const productsTotal = calculateSectionProductsTotal(section); // Items only
+                        const finalSectionTotal = calculateSectionFinalTotal(section); // Items + DIFAL/ST
+                        const totalPerSqm = section.areaSize > 0 ? finalSectionTotal / section.areaSize : 0;
 
-                {/* Bottom Spacer for visually separating from next block */}
-                <div className="mb-2"></div>
-            </div>
-          );
-      })}
+                        return (
+                            /* break-inside-avoid ensures a section (title + table + totals) tries to stay on one page */
+                            <div key={section.id} className="mb-6 break-inside-avoid page-break-block">
+                                {/* Section Title Header */}
+                                <div className="font-bold bg-gray-100 p-1 border border-black mb-1 text-xs">
+                                    {section.title}: {formatNumber(section.areaSize)} m² {section.description}
+                                </div>
 
-      {/* Global Extras and Grand Total */}
-      <div className="break-inside-avoid mb-6">
-        {/* Render Global Extras (Freight, etc) */}
-        {(data.globalExtras || []).map(extra => (
-            <div key={extra.id} className="border border-black flex justify-between items-center px-2 py-2 text-sm border-b-0">
-                <span className="font-bold">{extra.description}</span>
-                <span className="font-bold">{formatCurrency(extra.value)}</span>
-            </div>
-        ))}
+                                {/* Table */}
+                                <table className="w-full border-collapse border border-black text-[10px]">
+                                    <thead>
+                                        <tr className="text-center font-bold">
+                                            <th className="border border-black p-1 w-[15%]">Produto</th>
+                                            <th className="border border-black p-1 w-[20%]">Descrição</th>
+                                            <th className="border border-black p-1 w-[15%]">Embalagem (kg)</th>
+                                            <th className="border border-black p-1 w-[8%]">R$ / kg</th>
+                                            <th className="border border-black p-1 w-[5%]">Ipi</th>
+                                            <th className="border border-black p-1 w-[5%]">Icms</th>
+                                            <th className="border border-black p-1 w-[5%]">Kits</th>
+                                            <th className="border border-black p-1 w-[10%]">Quant, (kg)</th>
+                                            <th className="border border-black p-1 w-[12%]">Total (R$)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {section.items.map((item) => {
+                                            const totalWeight = item.kits * item.packagingWeight;
+                                            const basePrice = totalWeight * item.pricePerKg;
+                                            const ipiAmount = basePrice * (item.ipi / 100);
+                                            const totalPrice = basePrice + ipiAmount;
 
-        <div className="border border-black flex justify-between items-center px-2 py-2 text-sm bg-gray-100">
-            <span className="font-bold">Total da proposta</span>
-            <span className="font-bold">{formatCurrency(calculateGrandTotal())}</span>
-        </div>
-      </div>
+                                            return (
+                                                <tr key={item.id} className="text-center">
+                                                    <td className="border border-black p-1 font-bold">{item.product}</td>
+                                                    <td className="border border-black p-1 text-left">{item.description}</td>
+                                                    <td className="border border-black p-1 text-left pl-2">
+                                                        <span className="mr-1">{item.packagingType}</span>
+                                                        <span className="float-right">{formatNumber(item.packagingWeight, 3)} kg</span>
+                                                    </td>
+                                                    <td className="border border-black p-1">
+                                                        <span className="float-left">R$</span>
+                                                        {formatNumber(item.pricePerKg)} / kg
+                                                    </td>
+                                                    <td className="border border-black p-1">{formatNumber(item.ipi)}%</td>
+                                                    <td className="border border-black p-1">{formatNumber(item.icms)}%</td>
+                                                    <td className="border border-black p-1">{item.kits}</td>
+                                                    <td className="border border-black p-1">{formatNumber(totalWeight, 3)}</td>
+                                                    <td className="border border-black p-1 text-right">{formatCurrency(totalPrice)}</td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
 
-      {/* Conditions - Strict Block */}
-      <div className="mb-8 text-[10px] break-inside-avoid border border-transparent">
-          <h3 className="font-bold mb-2 text-xs border-b border-gray-200 pb-1 inline-block">Condições de Fornecimento</h3>
-          <div className="grid grid-cols-[120px_1fr] gap-y-1">
-              <div className="font-bold">Faturamento:</div>
-              <div>{data.conditions.payment}</div>
+                                {/* Supplemental Fields (DIFAL, ST) - RENDER BEFORE TOTAL */}
+                                {(section.supplemental || []).map((sup) => (
+                                    <div key={sup.id} className="border border-t-0 border-black flex justify-between items-center px-2 py-1">
+                                        <span className="font-bold">{sup.description}</span>
+                                        <span className="font-bold">{formatCurrency(sup.value)}</span>
+                                    </div>
+                                ))}
 
-              <div className="font-bold">Frete:</div>
-              <div>{data.conditions.freight}</div>
+                                {/* Section Totals */}
+                                <div className="border border-t-0 border-black flex justify-between items-center px-2 py-1 bg-gray-50">
+                                    <span className="font-bold">Total do item</span>
+                                    <span className="font-bold">{formatCurrency(finalSectionTotal)}</span>
+                                </div>
+                                <div className="border border-t-0 border-black flex justify-between items-center px-2 py-1">
+                                    <span className="font-bold">Total do item por m²</span>
+                                    <span className="font-bold">{formatCurrency(totalPerSqm)}</span>
+                                </div>
 
-              <div className="font-bold">Impostos:</div>
-              <div>{data.conditions.taxes}</div>
+                                {/* Bottom Spacer for visually separating from next block */}
+                                <div className="mb-2"></div>
+                            </div>
+                        );
+                    })}
 
-              <div className="font-bold">Faturamento mínimo:</div>
-              <div>{data.conditions.minBilling}</div>
+                    {/* Global Extras and Grand Total */}
+                    <div className="break-inside-avoid mb-6">
+                        {/* Render Global Extras (Freight, etc) */}
+                        {(data.globalExtras || []).map(extra => (
+                            <div key={extra.id} className="border border-black flex justify-between items-center px-2 py-2 text-sm border-b-0">
+                                <span className="font-bold">{extra.description}</span>
+                                <span className="font-bold">{formatCurrency(extra.value)}</span>
+                            </div>
+                        ))}
 
-              <div className="font-bold">Embarque:</div>
-              <div>{data.conditions.shipping}</div>
-
-              <div className="font-bold">Validade da proposta:</div>
-              <div>{data.conditions.validity}</div>
-          </div>
-      </div>
-
-      {/* Notes and Signature Group - Ensure they don't split weirdly */}
-      <div className="break-inside-avoid">
-          {/* Footer Notes */}
-          <div className="text-[9px] text-justify leading-tight space-y-2 mb-12">
-              <div className="whitespace-pre-line">{data.notes}</div>
-          </div>
-
-          {/* Signature and Footer Block */}
-          <div className="flex justify-between items-end border-t border-gray-400 pt-4">
-                <div className="text-xs mb-8">
-                    Atenciosamente,
-                </div>
-
-                <div className="text-right text-[10px] leading-relaxed">
-                    <div className="font-bold text-xs mb-1">{data.company.signatoryName}</div>
-                    <div>{data.company.mobile}</div>
-                    <div>{data.company.phone}</div>
-                    <div className="text-blue-600 underline">
-                        <a href={`mailto:${data.company.secondaryEmail}`}>{data.company.secondaryEmail}</a>
+                        <div className="border border-black flex justify-between items-center px-2 py-2 text-sm bg-gray-100">
+                            <span className="font-bold">Total da proposta</span>
+                            <span className="font-bold">{formatCurrency(calculateGrandTotal())}</span>
+                        </div>
                     </div>
-                    <div className="text-blue-600 underline">
-                        <a href={`mailto:${data.company.email}`}>{data.company.email}</a>
-                    </div>
-                </div>
-          </div>
-      </div>
 
+                    {/* Conditions - Strict Block */}
+                    <div className="mb-8 text-[10px] break-inside-avoid border border-transparent">
+                        <h3 className="font-bold mb-2 text-xs border-b border-gray-200 pb-1 inline-block">Condições de Fornecimento</h3>
+                        <div className="grid grid-cols-[120px_1fr] gap-y-1">
+                            <div className="font-bold">Faturamento:</div>
+                            <div>{data.conditions.payment}</div>
+
+                            <div className="font-bold">Frete:</div>
+                            <div>{data.conditions.freight}</div>
+
+                            <div className="font-bold">Impostos:</div>
+                            <div>{data.conditions.taxes}</div>
+
+                            <div className="font-bold">Faturamento mínimo:</div>
+                            <div>{data.conditions.minBilling}</div>
+
+                            <div className="font-bold">Embarque:</div>
+                            <div>{data.conditions.shipping}</div>
+
+                            <div className="font-bold">Validade da proposta:</div>
+                            <div>{data.conditions.validity}</div>
+                        </div>
+                    </div>
+
+                    {/* Notes and Signature Group - Ensure they don't split weirdly */}
+                    <div className="break-inside-avoid">
+                        {/* Footer Notes */}
+                        <div className="text-[9px] text-justify leading-tight space-y-2 mb-12">
+                            <div className="whitespace-pre-line">{data.notes}</div>
+                        </div>
+
+                        {/* Signature and Footer Block */}
+                        <div className="flex justify-between items-end border-t border-gray-400 pt-4">
+                                <div className="text-xs mb-8">
+                                    Atenciosamente,
+                                </div>
+
+                                <div className="text-right text-[10px] leading-relaxed">
+                                    <div className="font-bold text-xs mb-1">{data.company.signatoryName}</div>
+                                    <div>{data.company.mobile}</div>
+                                    <div>{data.company.phone}</div>
+                                    <div className="text-blue-600 underline">
+                                        <a href={`mailto:${data.company.secondaryEmail}`}>{data.company.secondaryEmail}</a>
+                                    </div>
+                                    <div className="text-blue-600 underline">
+                                        <a href={`mailto:${data.company.email}`}>{data.company.email}</a>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+
+                </td>
+            </tr>
+        </tbody>
+
+        <tfoot>
+            <tr>
+                <td>
+                    {/* BOTTOM MARGIN SPACER - Repeats on every page */}
+                     <div className="h-[15mm] print:h-[15mm]"></div>
+                </td>
+            </tr>
+        </tfoot>
+      </table>
     </div>
   );
 };
