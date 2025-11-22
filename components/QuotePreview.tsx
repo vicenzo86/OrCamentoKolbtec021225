@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { QuoteData, QuoteItem, QuoteSection } from '../types';
 
@@ -47,7 +46,7 @@ const QuotePreview: React.FC<QuotePreviewProps> = ({ data }) => {
   };
 
   return (
-    <div className="bg-white text-black p-8 md:p-10 print:p-0 shadow-2xl print-area max-w-[210mm] mx-auto min-h-[297mm] text-[11px] font-sans leading-snug relative">
+    <div className="bg-white text-black p-8 md:p-10 print:p-[20mm] shadow-2xl print-area max-w-[210mm] mx-auto min-h-[297mm] text-[11px] font-sans leading-snug relative">
       
       {/* Header - Keep together */}
       <div className="break-inside-avoid mb-6">
