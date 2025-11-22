@@ -23,7 +23,7 @@ const QuotePreview: React.FC<QuotePreviewProps> = ({ data }) => {
       return baseTotal + ipiTotal;
   };
 
-  const calculateSectionItemsTotal = (section: QuoteSection) => {
+  const calculateSectionProductsTotal = (section: QuoteSection) => {
     return section.items.reduce((acc, item) => acc + calculateItemTotal(item), 0);
   };
   
@@ -31,10 +31,19 @@ const QuotePreview: React.FC<QuotePreviewProps> = ({ data }) => {
       return (section.supplemental || []).reduce((acc, sup) => acc + sup.value, 0);
   };
 
+  const calculateSectionFinalTotal = (section: QuoteSection) => {
+      return calculateSectionProductsTotal(section) + calculateSectionSupplementalTotal(section);
+  }
+
+  const calculateGlobalExtrasTotal = () => {
+      return (data.globalExtras || []).reduce((acc, extra) => acc + extra.value, 0);
+  }
+
   const calculateGrandTotal = () => {
-    return data.sections.reduce((acc, section) => {
-        return acc + calculateSectionItemsTotal(section) + calculateSectionSupplementalTotal(section);
+    const sectionsTotal = data.sections.reduce((acc, section) => {
+        return acc + calculateSectionFinalTotal(section);
     }, 0);
+    return sectionsTotal + calculateGlobalExtrasTotal();
   };
 
   return (
@@ -85,8 +94,9 @@ const QuotePreview: React.FC<QuotePreviewProps> = ({ data }) => {
 
       {/* SECTIONS LOOP */}
       {data.sections.map((section) => {
-          const sectionTotal = calculateSectionItemsTotal(section);
-          const totalPerSqm = section.areaSize > 0 ? sectionTotal / section.areaSize : 0;
+          const productsTotal = calculateSectionProductsTotal(section); // Items only
+          const finalSectionTotal = calculateSectionFinalTotal(section); // Items + DIFAL/ST
+          const totalPerSqm = section.areaSize > 0 ? finalSectionTotal / section.areaSize : 0;
 
           return (
             /* break-inside-avoid ensures a section (title + table + totals) tries to stay on one page */
@@ -141,17 +151,7 @@ const QuotePreview: React.FC<QuotePreviewProps> = ({ data }) => {
                     </tbody>
                 </table>
 
-                {/* Section Totals */}
-                <div className="border border-t-0 border-black flex justify-between items-center px-2 py-1">
-                    <span className="font-bold">Total do item</span>
-                    <span className="font-bold">{formatCurrency(sectionTotal)}</span>
-                </div>
-                <div className="border border-t-0 border-black flex justify-between items-center px-2 py-1">
-                    <span className="font-bold">Total do item por m²</span>
-                    <span className="font-bold">{formatCurrency(totalPerSqm)}</span>
-                </div>
-                
-                {/* Supplemental Fields (DIFAL, ST, Frete, etc) */}
+                {/* Supplemental Fields (DIFAL, ST) - RENDER BEFORE TOTAL */}
                 {(section.supplemental || []).map((sup) => (
                     <div key={sup.id} className="border border-t-0 border-black flex justify-between items-center px-2 py-1">
                         <span className="font-bold">{sup.description}</span>
@@ -159,15 +159,33 @@ const QuotePreview: React.FC<QuotePreviewProps> = ({ data }) => {
                     </div>
                 ))}
 
+                {/* Section Totals */}
+                <div className="border border-t-0 border-black flex justify-between items-center px-2 py-1 bg-gray-50">
+                    <span className="font-bold">Total do item</span>
+                    <span className="font-bold">{formatCurrency(finalSectionTotal)}</span>
+                </div>
+                <div className="border border-t-0 border-black flex justify-between items-center px-2 py-1">
+                    <span className="font-bold">Total do item por m²</span>
+                    <span className="font-bold">{formatCurrency(totalPerSqm)}</span>
+                </div>
+
                 {/* Bottom Spacer for visually separating from next block */}
                 <div className="mb-2"></div>
             </div>
           );
       })}
 
-      {/* Grand Total - Keep with items if possible, or move to next */}
+      {/* Global Extras and Grand Total */}
       <div className="break-inside-avoid mb-6">
-        <div className="border border-black flex justify-between items-center px-2 py-2 text-sm bg-gray-50">
+        {/* Render Global Extras (Freight, etc) */}
+        {(data.globalExtras || []).map(extra => (
+            <div key={extra.id} className="border border-black flex justify-between items-center px-2 py-2 text-sm border-b-0">
+                <span className="font-bold">{extra.description}</span>
+                <span className="font-bold">{formatCurrency(extra.value)}</span>
+            </div>
+        ))}
+
+        <div className="border border-black flex justify-between items-center px-2 py-2 text-sm bg-gray-100">
             <span className="font-bold">Total da proposta</span>
             <span className="font-bold">{formatCurrency(calculateGrandTotal())}</span>
         </div>

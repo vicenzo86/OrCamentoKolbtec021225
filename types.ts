@@ -63,6 +63,7 @@ export interface QuoteData {
   subject: string;
   client: ClientData;
   sections: QuoteSection[];
+  globalExtras: QuoteSupplemental[]; // New field for Freight/Global costs
   company: CompanyData;
   conditions: SupplyConditions;
   notes: string;
@@ -132,6 +133,9 @@ export const initialQuoteData: QuoteData = {
         ],
         supplemental: []
       }
+  ],
+  globalExtras: [
+      { id: 'g1', description: "Frete Total", value: 0 }
   ],
   conditions: {
       payment: "28 DD após aprovação do cadastro",

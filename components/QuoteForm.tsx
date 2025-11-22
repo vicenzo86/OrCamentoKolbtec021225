@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { QuoteData, QuoteItem, QuoteSection, SupplyConditions, QuoteSupplemental } from '../types';
-import { Plus, Trash2, Layers, FolderPlus, Wand2, Loader2, Coins } from 'lucide-react';
+import { Plus, Trash2, Layers, FolderPlus, Wand2, Loader2, Coins, Truck } from 'lucide-react';
 import { suggestDescription } from '../services/geminiService';
 
 interface QuoteFormProps {
@@ -119,12 +119,12 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ data, onChange }) => {
       setLoadingSuggestion(null);
     };
 
-    // -- Supplemental Fields Management --
+    // -- Supplemental Fields Management (Section) --
 
     const addSupplementalToSection = (sectionId: string) => {
         const newSup: QuoteSupplemental = {
             id: Math.random().toString(36).substr(2, 9),
-            description: "DIFAL / ST / Frete",
+            description: "DIFAL / ST",
             value: 0
         };
 
@@ -166,6 +166,31 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ data, onChange }) => {
                 }
                 return s;
             })
+        });
+    };
+
+    // -- Global Extras Management (Freight) --
+
+    const addGlobalExtra = () => {
+        const newExtra: QuoteSupplemental = {
+            id: Math.random().toString(36).substr(2, 9),
+            description: "Frete / Outros",
+            value: 0
+        };
+        onChange({ ...data, globalExtras: [...(data.globalExtras || []), newExtra] });
+    };
+
+    const updateGlobalExtra = (extraId: string, field: keyof QuoteSupplemental, value: string | number) => {
+        onChange({
+            ...data,
+            globalExtras: (data.globalExtras || []).map(ex => ex.id === extraId ? { ...ex, [field]: value } : ex)
+        });
+    };
+
+    const removeGlobalExtra = (extraId: string) => {
+        onChange({
+            ...data,
+            globalExtras: (data.globalExtras || []).filter(ex => ex.id !== extraId)
         });
     };
 
@@ -412,18 +437,18 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ data, onChange }) => {
                 </button>
                 </div>
 
-                {/* Supplementary Fields */}
+                {/* Supplemental Fields (Section Specific - DIFAL/ST) */}
                 <div className="mt-6 border-t pt-4">
                     <label className="text-xs font-bold text-gray-700 flex items-center gap-2 mb-2">
                         <Coins size={14} />
-                        Custos Adicionais / Informações Extras (DIFAL, ST, Frete, etc.)
+                        Custos da Área (DIFAL, ST, etc.)
                     </label>
                     <div className="space-y-2">
                         {(section.supplemental || []).map(sup => (
                             <div key={sup.id} className="flex gap-2 items-center">
                                 <input 
                                     type="text"
-                                    placeholder="Descrição (ex: DIFAL, ST, Frete)"
+                                    placeholder="Descrição (ex: DIFAL, ST)"
                                     value={sup.description}
                                     onChange={(e) => updateSupplemental(section.id, sup.id, 'description', e.target.value)}
                                     className="flex-grow border-gray-300 rounded-md text-xs p-1.5 border"
@@ -444,7 +469,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ data, onChange }) => {
                             onClick={() => addSupplementalToSection(section.id)}
                             className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1 font-medium mt-1"
                         >
-                            <Plus size={12} /> Adicionar Campo Extra
+                            <Plus size={12} /> Adicionar Custo de Área
                         </button>
                     </div>
                 </div>
@@ -461,6 +486,43 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ data, onChange }) => {
         Adicionar Nova Área
       </button>
 
+      {/* Global Extras (Freight) */}
+      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <Truck size={20} />
+              Custos Globais (Frete / Entregas)
+          </h3>
+          <div className="space-y-2 mb-4">
+              {(data.globalExtras || []).map(extra => (
+                  <div key={extra.id} className="flex gap-2 items-center bg-gray-50 p-2 rounded border border-gray-200">
+                      <input 
+                          type="text"
+                          placeholder="Descrição (ex: Frete, Taxa de entrega)"
+                          value={extra.description}
+                          onChange={(e) => updateGlobalExtra(extra.id, 'description', e.target.value)}
+                          className="flex-grow border-gray-300 rounded-md text-xs p-2 border"
+                      />
+                      <input 
+                          type="number"
+                          placeholder="Valor (R$)"
+                          value={extra.value}
+                          onChange={(e) => updateGlobalExtra(extra.id, 'value', parseFloat(e.target.value) || 0)}
+                          className="w-32 border-gray-300 rounded-md text-xs p-2 border text-right font-semibold"
+                      />
+                      <button onClick={() => removeGlobalExtra(extra.id)} className="text-red-400 hover:text-red-600 p-1">
+                          <Trash2 size={16} />
+                      </button>
+                  </div>
+              ))}
+          </div>
+          <button 
+              onClick={addGlobalExtra}
+              className="text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1 font-medium border border-blue-200 rounded px-3 py-1.5 bg-blue-50"
+          >
+              <Plus size={14} /> Adicionar Frete / Custo Global
+          </button>
+      </div>
+
       {/* Supply Conditions */}
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
         <h3 className="text-lg font-semibold text-gray-800 mb-4">Condições de Fornecimento</h3>
@@ -471,7 +533,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ data, onChange }) => {
                         {key === 'minBilling' ? 'Faturamento Mínimo' : 
                          key === 'taxes' ? 'Impostos' : 
                          key === 'shipping' ? 'Embarque' : 
-                         key === 'freight' ? 'Frete' : 
+                         key === 'freight' ? 'Frete (Texto)' : 
                          key === 'payment' ? 'Faturamento' : 
                          key === 'validity' ? 'Validade da Proposta' : key}
                     </label>
