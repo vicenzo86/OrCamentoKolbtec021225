@@ -347,7 +347,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ data, onChange }) => {
                         
                         <div className="mt-2 text-[10px] text-gray-400 flex justify-end gap-4">
                              <span>Total Kg: {(item.kits * item.packagingWeight).toFixed(3)} kg</span>
-                             <span>Total R$: {((item.kits * item.packagingWeight) * item.pricePerKg).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})}</span>
+                             <span>Total R$: {(((item.kits * item.packagingWeight) * item.pricePerKg) * (1 + (item.ipi || 0) / 100)).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})}</span>
                         </div>
 
                     </div>

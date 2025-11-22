@@ -17,7 +17,9 @@ const QuotePreview: React.FC<QuotePreviewProps> = ({ data }) => {
   
   const calculateItemTotal = (item: QuoteItem) => {
       const totalWeight = item.packagingWeight * item.kits;
-      return totalWeight * item.pricePerKg;
+      const baseTotal = totalWeight * item.pricePerKg;
+      const ipiTotal = baseTotal * (item.ipi / 100);
+      return baseTotal + ipiTotal;
   };
 
   const calculateSectionTotal = (section: QuoteSection) => {
@@ -105,7 +107,9 @@ const QuotePreview: React.FC<QuotePreviewProps> = ({ data }) => {
                     <tbody>
                         {section.items.map((item) => {
                             const totalWeight = item.kits * item.packagingWeight;
-                            const totalPrice = totalWeight * item.pricePerKg;
+                            const basePrice = totalWeight * item.pricePerKg;
+                            const ipiAmount = basePrice * (item.ipi / 100);
+                            const totalPrice = basePrice + ipiAmount;
 
                             return (
                                 <tr key={item.id} className="text-center">
