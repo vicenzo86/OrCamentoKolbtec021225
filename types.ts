@@ -70,80 +70,60 @@ export interface QuoteData {
 }
 
 export const initialQuoteData: QuoteData = {
-  number: `EI${new Date().getFullYear().toString().slice(-2)}LGM${Math.floor(Math.random() * 9)}`,
+  number: `KO${new Date().getFullYear().toString().slice(-2)}LB${Math.floor(Math.random() * 9)}`,
   date: new Date().toLocaleDateString('pt-BR'),
-  reference: `VA ${new Date().getFullYear()}.11.21 036`,
-  subject: "Proposta Comercial Builder",
+  reference: `KO ${new Date().getFullYear()}.11.21 001`,
+  subject: "Proposta Comercial Kolbtec",
   client: {
-    name: "Brava Pisos",
-    contact: "A/C Sr Ranieri",
-    phone: "(47) 99148 0070",
-    address: "Av Frederico A Ritter, 3670 - Cachoeirinha – RS",
-    email: "contato@bravapisos.com.br"
+    name: "Cliente Exemplo Ltda",
+    contact: "A/C Sr. Responsável",
+    phone: "(00) 0000-0000",
+    address: "Rua do Cliente, 100 - Cidade - UF",
+    email: "contato@cliente.com.br"
   },
   company: {
-    name: "Builder Indústria e Comércio",
-    address: "Av Frederico A Ritter, 3670 - Cachoeirinha – RS - CEP: 94930-598",
-    phone: "+ 55 (51) 3471-1289",
-    email: "vendas@builder.com.br",
-    site: "www.builder.ind.br",
-    logoUrl: "https://via.placeholder.com/300x100?text=Builder+Logo", // Placeholder, user can upload
-    signatoryName: "Eng Vicenzo Agustini",
-    mobile: "+ 55 (47) 99215-4118",
-    secondaryEmail: "vicenzo.agustini@builder.ind.br"
+    name: "Kolbtec Impermeabilizações",
+    address: "Endereço da Kolbtec, 000 - Cidade - UF - CEP: 00000-000",
+    phone: "+ 55 (00) 0000-0000",
+    email: "contato@kolbtec.com.br",
+    site: "www.kolbtec.com.br",
+    logoUrl: "", // User to upload
+    signatoryName: "Representante Kolbtec",
+    mobile: "+ 55 (00) 90000-0000",
+    secondaryEmail: "vendas@kolbtec.com.br"
   },
   sections: [
     {
       id: '1',
       title: "Área 1",
-      areaSize: 4950.00,
-      description: "de endurecedor de superfície Duratop SD, com consumo aproximado de 120g/m².",
+      areaSize: 100.00,
+      description: "Impermeabilização padrão",
       items: [
         {
           id: '101',
-          product: "Duratop SD",
-          description: "Endurecedor de Superfície para piso",
-          packagingType: "Parte A",
-          packagingWeight: 231.000,
-          pricePerKg: 4.55,
+          product: "Produto Exemplo",
+          description: "Descrição do material aplicado",
+          packagingType: "Galão",
+          packagingWeight: 18.000,
+          pricePerKg: 10.00,
           ipi: 0,
-          icms: 17,
-          kits: 3
+          icms: 0,
+          kits: 1
         }
       ],
       supplemental: []
-    },
-    {
-        id: '2',
-        title: "Área 2",
-        areaSize: 4950.00,
-        description: "de endurecedor de superfície Duratop Fórmula, com consumo aproximado de 100g/m².",
-        items: [
-          {
-            id: '102',
-            product: "Duratop Fórmula",
-            description: "Endurecedor de Superfície para piso",
-            packagingType: "Parte A",
-            packagingWeight: 248.000,
-            pricePerKg: 32.11,
-            ipi: 0,
-            icms: 17,
-            kits: 2
-          }
-        ],
-        supplemental: []
-      }
+    }
   ],
   globalExtras: [
       { id: 'g1', description: "Frete Total", value: 0 }
   ],
   conditions: {
-      payment: "28 DD após aprovação do cadastro",
-      freight: "FOB fábrica Cachoeirinha/RS",
-      taxes: "ICMS incluso do preço, IPI conforme tabela, cliente não contribuinte.",
-      minBilling: "R$ 3.000,00",
-      shipping: "Conforme programação",
-      validity: "30/11/2025"
+      payment: "A combinar",
+      freight: "CIF / FOB",
+      taxes: "Impostos inclusos",
+      minBilling: "R$ 1.000,00",
+      shipping: "Imediato",
+      validity: "15 dias"
   },
-  notes: "O consumo de material é teórico, não cabendo a Builder a responsabilidade por variações de consumo devido à variação de espessura, ancoragens, aplicação, imperfeições da superfície ou absorção do substrato, etc.\n\nEsta compra é realizada por pessoa juridica, em operação interestadual, e por tal razão poderá ser cobrado um diferencial de aliquota de ICMS pelo Estado de destino da mercadoria. Essa obrigação legal está prevista em legislação tributária e é de responsabilidade da pessoa juridica compradora, razão pela qual a Builder não se responsabiliza pelo pagamento e/ou liberação do produto, caso haja cobrança e/ou retenção do mesmo em barreiras fiscais."
+  notes: "O consumo de material é teórico, não cabendo a Kolbtec a responsabilidade por variações de consumo devido à variação de espessura, ancoragens, aplicação, imperfeições da superfície ou absorção do substrato, etc."
 };
