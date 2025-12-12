@@ -1,31 +1,24 @@
+
 import { GoogleGenAI } from "@google/genai";
 
-const getClient = () => {
-  const apiKey = process.env.API_KEY;
-  if (!apiKey) {
-    console.error("API Key not found in environment variables");
-    return null;
+// Função para obter a API Key de forma resiliente
+const getApiKey = (): string | undefined => {
+  try {
+    // Tenta obter do process.env injetado pelo ambiente ou pelo polifill
+    return (window as any).process?.env?.API_KEY || (process as any)?.env?.API_KEY;
+  } catch (e) {
+    return undefined;
   }
-  return new GoogleGenAI({ apiKey });
 };
 
 export const refineNotes = async (currentNotes: string, projectType: string): Promise<string> => {
-  const ai = getClient();
-  if (!ai) return currentNotes;
+  const apiKey = getApiKey();
+  if (!apiKey) return currentNotes;
 
   try {
-    const prompt = `
-      Você é um especialista em orçamentos de engenharia civil e impermeabilização.
-      Melhore o seguinte texto de 'Observações' para um orçamento profissional.
-      Mantenha o tom formal, claro e técnico.
-      
-      Tipo do Projeto: ${projectType}
-      Texto atual: "${currentNotes}"
-      
-      Se o texto atual for muito simples (ex: "zero observações"), sugira 3 tópicos padrões importantes para orçamentos de impermeabilização (ex: tempo de cura, necessidade de superfície limpa, garantia).
-      Retorne apenas o texto aprimorado, sem aspas ou preâmbulos.
-    `;
-
+    const ai = new GoogleGenAI({ apiKey });
+    const prompt = `Melhore este texto de observações de orçamento para impermeabilização Kolbtec: "${currentNotes}". Tipo: ${projectType}. Seja técnico e profissional.`;
+    
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: prompt,
@@ -33,35 +26,24 @@ export const refineNotes = async (currentNotes: string, projectType: string): Pr
 
     return response.text || currentNotes;
   } catch (error) {
-    console.error("Error refining notes:", error);
+    console.error("Erro Gemini:", error);
     return currentNotes;
   }
 };
 
-export const suggestDescription = async (inputType: 'material' | 'labor', keyword: string): Promise<string> => {
-    const ai = getClient();
-    if (!ai) return keyword;
-  
+export const suggestDescription = async (keyword: string): Promise<string> => {
+    const apiKey = getApiKey();
+    if (!apiKey) return keyword;
+    
     try {
-      const prompt = `
-        Aja como um orçamentista de obras.
-        Escreva uma descrição técnica curta e profissional para um item de linha em um orçamento.
-        
-        Contexto: Orçamento de Impermeabilização.
-        Categoria: ${inputType === 'material' ? 'Material' : 'Mão de Obra / Serviço'}.
-        Palavra-chave/Ideia do usuário: "${keyword}"
-        
-        Retorne apenas a descrição sugerida (ex: "Manta asfáltica aluminizada 3mm...").
-      `;
-  
+      const ai = new GoogleGenAI({ apiKey });
+      const prompt = `Descreva tecnicamente em uma frase o serviço de impermeabilização: ${keyword}`;
       const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: prompt,
       });
-  
       return response.text || keyword;
-    } catch (error) {
-      console.error("Error suggesting description:", error);
+    } catch (e) {
       return keyword;
     }
-  };
+};

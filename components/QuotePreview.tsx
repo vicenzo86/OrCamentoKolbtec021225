@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { QuoteData, QuoteItem, QuoteSection } from '../types';
 
@@ -6,272 +7,200 @@ interface QuotePreviewProps {
 }
 
 const formatCurrency = (val: number) => {
-  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
+  return new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val);
 };
 
-const formatNumber = (val: number, decimals = 2) => {
-    return new Intl.NumberFormat('pt-BR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(val);
+const formatNumber = (val: number) => {
+    return new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 3, maximumFractionDigits: 3 }).format(val);
 };
 
 const QuotePreview: React.FC<QuotePreviewProps> = ({ data }) => {
   
   const calculateItemTotal = (item: QuoteItem) => {
-      const totalWeight = item.packagingWeight * item.kits;
-      const baseTotal = totalWeight * item.pricePerKg;
-      const ipiTotal = baseTotal * (item.ipi / 100);
-      return baseTotal + ipiTotal;
+      return item.quantity * item.unitPrice;
   };
 
-  const calculateSectionProductsTotal = (section: QuoteSection) => {
+  const calculateSectionTotal = (section: QuoteSection) => {
     return section.items.reduce((acc, item) => acc + calculateItemTotal(item), 0);
-  };
-  
-  const calculateSectionSupplementalTotal = (section: QuoteSection) => {
-      return (section.supplemental || []).reduce((acc, sup) => acc + sup.value, 0);
-  };
-
-  const calculateSectionFinalTotal = (section: QuoteSection) => {
-      return calculateSectionProductsTotal(section) + calculateSectionSupplementalTotal(section);
-  }
-
-  const calculateGlobalExtrasTotal = () => {
-      return (data.globalExtras || []).reduce((acc, extra) => acc + extra.value, 0);
-  }
-
-  const calculateGrandTotal = () => {
-    const sectionsTotal = data.sections.reduce((acc, section) => {
-        return acc + calculateSectionFinalTotal(section);
-    }, 0);
-    return sectionsTotal + calculateGlobalExtrasTotal();
   };
 
   return (
-    <div className="bg-white text-black shadow-2xl print-area max-w-[210mm] mx-auto min-h-[297mm] text-[11px] font-sans leading-snug relative print:p-0">
-      
-      {/* Table structure ensures spacers repeat on every page (thead/tfoot) */}
-      <table className="w-full border-collapse">
-        <thead>
-            <tr>
-                <td>
-                    {/* TOP MARGIN SPACER - Repeats on every page */}
-                    {/* Exact 15mm spacing from top of sheet for Page 1 and Page 2+ */}
-                    <div className="h-[15mm] print:h-[15mm]"></div> 
-                </td>
-            </tr>
-        </thead>
-
-        <tbody>
-            <tr>
-                <td className="align-top p-8 md:p-10 print:p-0 print:px-[20mm]">
-                    
-                    {/* MAIN CONTENT */}
-                    
-                    {/* Header - Keep together */}
-                    <div className="break-inside-avoid mb-6">
-                        <div className="flex justify-between items-start">
-                            {/* Left - Client Address Scope */}
-                            <div className="w-1/2 mt-0">
-                                <div className="font-bold text-sm mb-1">À</div>
-                                <div className="font-bold text-base mb-1">{data.client.name}</div>
-                                <div>{data.client.contact}</div>
-                                <div>{data.client.phone}</div>
-                                <div className="mt-2">
-                                    <span className="font-bold">Data:</span> {data.date}
-                                </div>
-                                <div>
-                                    <span className="font-bold">Referência:</span> {data.reference}
-                                </div>
-                                <div className="mt-2">
-                                    <span className="font-bold">Assunto:</span> {data.subject}
-                                </div>
-                            </div>
-
-                            {/* Right - Company Info */}
-                            <div className="w-1/2 text-right flex flex-col items-end mt-0">
-                                {data.company.logoUrl ? (
-                                    <img src={data.company.logoUrl} alt="Logo" className="h-32 w-auto object-contain mb-1 object-right"/>
-                                ) : (
-                                    <h1 className="text-3xl font-bold text-blue-800 italic mb-4">{data.company.name}</h1>
-                                )}
-                                
-                                <div className="text-xs text-gray-700 mt-0">
-                                    <div className="font-bold">{data.company.name}</div>
-                                    <div>{data.company.address}</div>
-                                    <div>Tel.: {data.company.phone}</div>
-                                    <a href={`https://${data.company.site}`} className="text-blue-600 underline">{data.company.site}</a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="mt-6 border-t border-black pt-4">
-                            <p>Prezado {data.client.contact.replace('A/C ', '')}</p>
-                            <p>Conforme solicitado, enviamos abaixo nossa proposta de materiais, conforme descrição abaixo:</p>
+    <div className="bg-white text-black shadow-2xl print-area w-full max-w-[210mm] mx-auto min-h-[297mm] text-[8.5px] font-sans leading-tight relative border border-gray-200 print:border-none flex flex-col">
+      <div className="p-10 print:p-[15mm] flex-1">
+        
+        {/* CABEÇALHO CORPORATIVO */}
+        <div className="flex justify-between items-start mb-6">
+            <div className="pt-2 max-w-[55%]">
+                <div className="text-[7px] font-black text-blue-600 mb-1 uppercase tracking-widest">À empresa / Cliente</div>
+                <div className="text-base font-black text-slate-900 leading-none uppercase mb-1.5 tracking-tight">{data.client.name}</div>
+                <div className="space-y-0.5 text-slate-600 font-medium text-[8.5px]">
+                    {data.client.contact && <div className="font-bold text-slate-800">{data.client.contact}</div>}
+                    {data.client.phone && <div>Tel: {data.client.phone}</div>}
+                    {data.client.address && <div className="leading-tight">{data.client.address}</div>}
+                </div>
+            </div>
+            
+            <div className="text-right flex flex-col items-end">
+                {data.company.logoUrl ? (
+                    <img src={data.company.logoUrl} alt="Logo" className="h-12 mb-2 object-contain"/>
+                ) : (
+                    <div className="flex items-center gap-1 mb-2">
+                        <div className="flex flex-col items-end">
+                             <span className="text-xl font-black italic text-slate-900 leading-none">KOLBTEC</span>
+                             <span className="text-[6px] font-black tracking-[0.3em] text-blue-600">IMPERMEABILIZAÇÃO</span>
                         </div>
                     </div>
+                )}
+                <div className="text-[7.5px] text-slate-500 font-bold leading-tight">
+                    <div className="text-slate-900 uppercase">{data.company.name}</div>
+                    <div className="font-normal">{data.company.address}</div>
+                    <div>{data.company.phone}</div>
+                    <div className="text-blue-600 font-black tracking-wider mt-0.5">{data.company.site}</div>
+                </div>
+            </div>
+        </div>
 
-                    {/* SECTIONS LOOP */}
-                    {data.sections.map((section) => {
-                        const productsTotal = calculateSectionProductsTotal(section); // Items only
-                        const finalSectionTotal = calculateSectionFinalTotal(section); // Items + DIFAL/ST
-                        const totalPerSqm = section.areaSize > 0 ? finalSectionTotal / section.areaSize : 0;
+        {/* IDENTIFICAÇÃO DO DOCUMENTO */}
+        <div className="grid grid-cols-3 gap-0 mb-5 border border-slate-200 divide-x divide-slate-200 rounded-sm overflow-hidden">
+            <div className="p-2 bg-slate-50">
+                <div className="text-[6px] font-black text-slate-400 uppercase mb-0.5">Referência</div>
+                <div className="font-black text-slate-900 text-[9px]">{data.reference}</div>
+            </div>
+            <div className="p-2">
+                <div className="text-[6px] font-black text-slate-400 uppercase mb-0.5">Data de Emissão</div>
+                <div className="font-black text-slate-900 text-[9px]">{data.date}</div>
+            </div>
+            <div className="p-2 bg-slate-50">
+                <div className="text-[6px] font-black text-slate-400 uppercase mb-0.5">Assunto</div>
+                <div className="font-black text-blue-800 uppercase text-[9px] line-clamp-1">{data.subject}</div>
+            </div>
+        </div>
 
-                        return (
-                            /* break-inside-avoid ensures a section (title + table + totals) tries to stay on one page */
-                            <div key={section.id} className="mb-6 break-inside-avoid page-break-block">
-                                {/* Section Title Header */}
-                                <div className="font-bold bg-gray-100 p-1 border border-black mb-1 text-xs">
-                                    {section.title}: {formatNumber(section.areaSize)} m² {section.description}
-                                </div>
+        {/* SAUDAÇÃO E INTRODUÇÃO */}
+        <div className="mb-5 px-1">
+            <div className="font-black text-[10px] text-slate-900 mb-1">{data.salutation}</div>
+            <p className="text-slate-700 leading-relaxed text-justify italic text-[9px]">{data.introText}</p>
+        </div>
 
-                                {/* Table */}
-                                <table className="w-full border-collapse border border-black text-[10px]">
-                                    <thead>
-                                        <tr className="text-center font-bold">
-                                            <th className="border border-black p-1 w-[15%]">Produto</th>
-                                            <th className="border border-black p-1 w-[20%]">Descrição</th>
-                                            <th className="border border-black p-1 w-[15%]">Embalagem (kg)</th>
-                                            <th className="border border-black p-1 w-[8%]">R$ / kg</th>
-                                            <th className="border border-black p-1 w-[5%]">Ipi</th>
-                                            <th className="border border-black p-1 w-[5%]">Icms</th>
-                                            <th className="border border-black p-1 w-[5%]">Kits</th>
-                                            <th className="border border-black p-1 w-[10%]">Quant, (kg)</th>
-                                            <th className="border border-black p-1 w-[12%]">Total (R$)</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {section.items.map((item) => {
-                                            const totalWeight = item.kits * item.packagingWeight;
-                                            const basePrice = totalWeight * item.pricePerKg;
-                                            const ipiAmount = basePrice * (item.ipi / 100);
-                                            const totalPrice = basePrice + ipiAmount;
-
-                                            return (
-                                                <tr key={item.id} className="text-center">
-                                                    <td className="border border-black p-1 font-bold">{item.product}</td>
-                                                    <td className="border border-black p-1 text-left">{item.description}</td>
-                                                    <td className="border border-black p-1 text-left pl-2">
-                                                        <span className="mr-1">{item.packagingType}</span>
-                                                        <span className="float-right">{formatNumber(item.packagingWeight, 3)} kg</span>
-                                                    </td>
-                                                    <td className="border border-black p-1">
-                                                        <span className="float-left">R$</span>
-                                                        {formatNumber(item.pricePerKg)} / kg
-                                                    </td>
-                                                    <td className="border border-black p-1">{formatNumber(item.ipi)}%</td>
-                                                    <td className="border border-black p-1">{formatNumber(item.icms)}%</td>
-                                                    <td className="border border-black p-1">{item.kits}</td>
-                                                    <td className="border border-black p-1">{formatNumber(totalWeight, 3)}</td>
-                                                    <td className="border border-black p-1 text-right">{formatCurrency(totalPrice)}</td>
-                                                </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
-
-                                {/* Supplemental Fields (DIFAL, ST) - RENDER BEFORE TOTAL */}
-                                {(section.supplemental || []).map((sup) => (
-                                    <div key={sup.id} className="border border-t-0 border-black flex justify-between items-center px-2 py-1">
-                                        <span className="font-bold">{sup.description}</span>
-                                        <span className="font-bold">{formatCurrency(sup.value)}</span>
-                                    </div>
-                                ))}
-
-                                {/* Section Totals */}
-                                <div className="border border-t-0 border-black flex justify-between items-center px-2 py-1 bg-gray-50">
-                                    <span className="font-bold">Total do item</span>
-                                    <span className="font-bold">{formatCurrency(finalSectionTotal)}</span>
-                                </div>
-                                <div className="border border-t-0 border-black flex justify-between items-center px-2 py-1">
-                                    <span className="font-bold">Total do item por m²</span>
-                                    <span className="font-bold">{formatCurrency(totalPerSqm)}</span>
-                                </div>
-
-                                {/* Bottom Spacer for visually separating from next block */}
-                                <div className="mb-2"></div>
+        {/* LISTAGEM DE ÁREAS E ITENS */}
+        <div className="space-y-6">
+            {data.sections.map((section, idx) => {
+                const sectionTotal = calculateSectionTotal(section);
+                const totalPerM2 = section.areaSize > 0 ? sectionTotal / section.areaSize : 0;
+                
+                return (
+                    <div key={section.id} className="break-inside-avoid">
+                        {/* Título da Seção (Área) */}
+                        <div className="flex items-end justify-between border-b-[1.5px] border-slate-900 pb-0.5 mb-1.5">
+                           <div className="flex items-center gap-2">
+                               <span className="bg-slate-900 text-white text-[8px] font-black px-1.5 py-0.5">ITEM {idx + 1}</span>
+                               <span className="text-[10px] font-black text-slate-900 uppercase tracking-tight">{section.description || section.title}</span>
+                           </div>
+                           <div className="text-[8px] font-bold text-slate-500">
+                               ÁREA: <span className="text-slate-900 font-black">{new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2 }).format(section.areaSize)} m²</span>
+                           </div>
+                        </div>
+                        
+                        {section.consumption && (
+                            <div className="mb-1.5 text-[7.5px] font-medium text-slate-600 italic">
+                                Informação técnica: Consumo estimado de {section.consumption} conforme especificação da Kolbtec.
                             </div>
-                        );
-                    })}
+                        )}
 
-                    {/* Global Extras and Grand Total */}
-                    <div className="break-inside-avoid mb-6">
-                        {/* Render Global Extras (Freight, etc) */}
-                        {(data.globalExtras || []).map(extra => (
-                            <div key={extra.id} className="border border-black flex justify-between items-center px-2 py-2 text-sm border-b-0">
-                                <span className="font-bold">{extra.description}</span>
-                                <span className="font-bold">{formatCurrency(extra.value)}</span>
+                        <table className="w-full border-collapse border border-slate-300 table-fixed">
+                            <thead>
+                                <tr className="bg-slate-100 text-[7.5px] font-black text-slate-700">
+                                    <th className="border border-slate-300 py-1.5 px-2 text-left uppercase w-[48%]">Produto / Serviço</th>
+                                    <th className="border border-slate-300 py-1.5 px-1 text-center uppercase w-[10%]">Unidade</th>
+                                    <th className="border border-slate-300 py-1.5 px-1 text-center uppercase w-[14%]">Preço Unitário</th>
+                                    <th className="border border-slate-300 py-1.5 px-1 text-center uppercase w-[14%]">Quantidade</th>
+                                    <th className="border border-slate-300 py-1.5 px-2 text-right uppercase w-[14%]">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {section.items.map((item, iIdx) => (
+                                    <tr key={item.id} className={`text-center ${iIdx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}`}>
+                                        <td className="border border-slate-300 py-2 px-2 font-black text-slate-900 text-left align-middle text-[9px] leading-tight break-words">
+                                            {item.serviceName}
+                                        </td>
+                                        <td className="border border-slate-300 py-2 px-1 text-slate-600 font-bold uppercase text-[7.5px] align-middle">
+                                            {item.unit}
+                                        </td>
+                                        <td className="border border-slate-300 py-2 px-1 font-bold text-slate-800 align-middle whitespace-nowrap text-[8.5px]">
+                                            R$ {formatCurrency(item.unitPrice)}
+                                        </td>
+                                        <td className="border border-slate-300 py-2 px-1 font-black text-slate-900 align-middle text-[8.5px]">
+                                            {formatNumber(item.quantity)}
+                                        </td>
+                                        <td className="border border-slate-300 py-2 px-2 text-right font-black text-slate-900 align-middle whitespace-nowrap text-[9px]">
+                                            R$ {formatCurrency(calculateItemTotal(item))}
+                                        </td>
+                                    </tr>
+                                ))}
+                                {/* Subtotais da Seção */}
+                                <tr className="bg-slate-50/80">
+                                    <td colSpan={4} className="border border-slate-300 py-1.5 px-2 text-right font-bold uppercase text-[7.5px] text-slate-500 tracking-wider">Total Materiais para esta área</td>
+                                    <td className="border border-slate-300 py-1.5 px-2 text-right font-black bg-white text-slate-900 text-[9px] whitespace-nowrap">R$ {formatCurrency(sectionTotal)}</td>
+                                </tr>
+                                <tr className="bg-blue-50/20">
+                                    <td colSpan={4} className="border border-slate-300 py-1.5 px-2 text-right font-black uppercase text-[7.5px] text-blue-700 tracking-wider">Investimento estimado por m²</td>
+                                    <td className="border border-slate-300 py-1.5 px-2 text-right font-black text-blue-800 bg-blue-50/50 text-[9px] whitespace-nowrap">R$ {formatCurrency(totalPerM2)}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                );
+            })}
+        </div>
+
+        {/* CONDIÇÕES E OBSERVAÇÕES TÉCNICAS */}
+        <div className="mt-10 break-inside-avoid border-t border-slate-200 pt-5">
+            <div className="grid grid-cols-2 gap-8">
+                <div>
+                    <h4 className="font-black text-slate-900 uppercase text-[8px] mb-2 border-l-2 border-blue-600 pl-1.5">Condições Gerais</h4>
+                    <div className="space-y-0.5 text-[8px]">
+                        {[
+                            { label: 'Condição de Pagamento', value: data.conditions.payment },
+                            { label: 'Prazo de Entrega', value: data.conditions.shipping },
+                            { label: 'Tipo de Frete', value: data.conditions.freight },
+                            { label: 'Validade da Proposta', value: data.conditions.validity },
+                            { label: 'Faturamento Mínimo', value: data.conditions.minBilling },
+                            { label: 'Impostos', value: data.conditions.taxes },
+                        ].map((cond, i) => (
+                            <div key={i} className="flex justify-between border-b border-slate-50 py-0.5">
+                                <span className="text-slate-400 font-bold uppercase tracking-tight">{cond.label}:</span>
+                                <span className="text-slate-900 font-black">{cond.value}</span>
                             </div>
                         ))}
-
-                        <div className="border border-black flex justify-between items-center px-2 py-2 text-sm bg-gray-100">
-                            <span className="font-bold">Total da proposta</span>
-                            <span className="font-bold">{formatCurrency(calculateGrandTotal())}</span>
-                        </div>
                     </div>
-
-                    {/* Conditions - Strict Block */}
-                    <div className="mb-8 text-[10px] break-inside-avoid border border-transparent">
-                        <h3 className="font-bold mb-2 text-xs border-b border-gray-200 pb-1 inline-block">Condições de Fornecimento</h3>
-                        <div className="grid grid-cols-[120px_1fr] gap-y-1">
-                            <div className="font-bold">Faturamento:</div>
-                            <div>{data.conditions.payment}</div>
-
-                            <div className="font-bold">Frete:</div>
-                            <div>{data.conditions.freight}</div>
-
-                            <div className="font-bold">Impostos:</div>
-                            <div>{data.conditions.taxes}</div>
-
-                            <div className="font-bold">Faturamento mínimo:</div>
-                            <div>{data.conditions.minBilling}</div>
-
-                            <div className="font-bold">Embarque:</div>
-                            <div>{data.conditions.shipping}</div>
-
-                            <div className="font-bold">Validade da proposta:</div>
-                            <div>{data.conditions.validity}</div>
-                        </div>
+                </div>
+                <div>
+                    <h4 className="font-black text-slate-900 uppercase text-[8px] mb-2 border-l-2 border-blue-600 pl-1.5">Notas Importantes</h4>
+                    <div className="text-[7.5px] text-slate-600 leading-relaxed font-medium bg-slate-50/50 p-2.5 border border-slate-100 rounded-sm italic text-justify">
+                        {data.notes || "Não foram inseridas observações adicionais."}
                     </div>
+                </div>
+            </div>
+        </div>
 
-                    {/* Notes and Signature Group - Ensure they don't split weirdly */}
-                    <div className="break-inside-avoid">
-                        {/* Footer Notes */}
-                        <div className="text-[9px] text-justify leading-tight space-y-2 mb-12">
-                            <div className="whitespace-pre-line">{data.notes}</div>
-                        </div>
+        {/* ASSINATURA */}
+        <div className="mt-16 flex justify-end">
+            <div className="text-center w-60">
+                <div className="border-t border-slate-900 pt-2">
+                    <div className="font-black text-[9px] uppercase text-slate-900 leading-none tracking-tight">{data.company.signatoryName || "Departamento Comercial"}</div>
+                    <div className="text-[7px] text-blue-600 font-black uppercase tracking-[0.15em] mt-0.5">KOLBTEC SOLUÇÕES</div>
+                    {data.company.mobile && <div className="text-[7.5px] text-slate-400 font-bold mt-0.5">{data.company.mobile}</div>}
+                </div>
+            </div>
+        </div>
 
-                        {/* Signature and Footer Block */}
-                        <div className="flex justify-between items-end border-t border-gray-400 pt-4">
-                                <div className="text-xs mb-8">
-                                    Atenciosamente,
-                                </div>
-
-                                <div className="text-right text-[10px] leading-relaxed">
-                                    <div className="font-bold text-xs mb-1">{data.company.signatoryName}</div>
-                                    <div>{data.company.mobile}</div>
-                                    <div>{data.company.phone}</div>
-                                    <div className="text-blue-600 underline">
-                                        <a href={`mailto:${data.company.secondaryEmail}`}>{data.company.secondaryEmail}</a>
-                                    </div>
-                                    <div className="text-blue-600 underline">
-                                        <a href={`mailto:${data.company.email}`}>{data.company.email}</a>
-                                    </div>
-                                </div>
-                        </div>
-                    </div>
-
-                </td>
-            </tr>
-        </tbody>
-
-        <tfoot>
-            <tr>
-                <td>
-                    {/* BOTTOM MARGIN SPACER - Repeats on every page */}
-                     <div className="h-[15mm] print:h-[15mm]"></div>
-                </td>
-            </tr>
-        </tfoot>
-      </table>
+      </div>
+      
+      {/* Rodapé Visual no Final da Página */}
+      <div className="bg-slate-900 text-white py-2 px-10 flex justify-between items-center no-print mt-auto">
+          <div className="text-[6.5px] font-bold tracking-widest uppercase opacity-30">Kolbtec Soluções em Impermeabilização</div>
+          <div className="text-[6.5px] font-bold tracking-widest uppercase opacity-30">{data.company.site}</div>
+      </div>
     </div>
   );
 };

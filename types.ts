@@ -1,37 +1,38 @@
 
 export interface QuoteItem {
   id: string;
-  product: string;
+  serviceName: string;
   description: string;
-  packagingType: string; // e.g., "Parte A"
-  packagingWeight: number;
-  pricePerKg: number;
-  ipi: number;
-  icms: number;
+  unit: string; 
+  packaging: string; // Ex: Parte A 231,000 kg
+  quantity: number; // Quantidade total em kg
+  unitPrice: number; // R$ / kg
+  taxIpi: number; // %
+  taxIcms: number; // %
   kits: number;
 }
 
 export interface QuoteSupplemental {
   id: string;
-  description: string; // e.g., "DIFAL", "ST", "Frete Extra"
+  description: string;
   value: number;
 }
 
 export interface QuoteSection {
   id: string;
-  title: string; // e.g. "Área 1"
-  areaSize: number; // e.g. 4950.00
-  description: string; // e.g. "de endurecedor de superfície..."
+  title: string;
+  areaSize: number; 
+  description: string; 
+  consumption: string; // Ex: 120g/m²
   items: QuoteItem[];
-  supplemental: QuoteSupplemental[];
 }
 
 export interface ClientData {
   name: string;
-  contact: string; // "A/C Sr Ranieri"
+  contact: string;
   phone: string;
-  address: string; // Address line in header
-  email: string; // Reference code in PDF? or email
+  address: string;
+  email: string;
 }
 
 export interface CompanyData {
@@ -41,10 +42,9 @@ export interface CompanyData {
   email: string;
   site: string;
   logoUrl: string;
-  // New fields for Footer/Signatory
-  signatoryName: string; // e.g. Eng Vicenzo Agustini
-  mobile: string; // e.g. + 55 (47) ...
-  secondaryEmail: string; 
+  signatoryName: string;
+  mobile: string;
+  secondaryEmail: string;
 }
 
 export interface SupplyConditions {
@@ -56,74 +56,83 @@ export interface SupplyConditions {
   validity: string;
 }
 
+export interface ServiceDB {
+  servico: string;
+  unidade: string;
+  valor: number;
+  escopo?: string;
+  embalagem?: string;
+}
+
 export interface QuoteData {
   number: string;
   date: string;
   reference: string;
   subject: string;
+  salutation: string;
+  introText: string;
   client: ClientData;
   sections: QuoteSection[];
-  globalExtras: QuoteSupplemental[]; // New field for Freight/Global costs
   company: CompanyData;
   conditions: SupplyConditions;
   notes: string;
 }
 
 export const initialQuoteData: QuoteData = {
-  number: `KO${new Date().getFullYear().toString().slice(-2)}LB${Math.floor(Math.random() * 9)}`,
+  number: `VA ${new Date().getFullYear()}.11.21 036`,
   date: new Date().toLocaleDateString('pt-BR'),
-  reference: `KO ${new Date().getFullYear()}.11.21 001`,
-  subject: "Proposta Comercial Kolbtec",
+  reference: `VA 2025.11.21 036`,
+  subject: "Proposta Comercial Builder",
+  salutation: "Prezado Sr Ranieri",
+  introText: "Conforme solicitado, enviamos abaixo nossa proposta de materiais, conforme descrição abaixo:",
   client: {
-    name: "Cliente Exemplo Ltda",
-    contact: "A/C Sr. Responsável",
-    phone: "(00) 0000-0000",
-    address: "Rua do Cliente, 100 - Cidade - UF",
-    email: "contato@cliente.com.br"
+    name: "Brava Pisos",
+    contact: "A/C Sr Ranieri",
+    phone: "(47) 99148 0070",
+    address: "",
+    email: ""
   },
   company: {
-    name: "Kolbtec Impermeabilizações",
-    address: "Endereço da Kolbtec, 000 - Cidade - UF - CEP: 00000-000",
-    phone: "+ 55 (00) 0000-0000",
-    email: "contato@kolbtec.com.br",
-    site: "www.kolbtec.com.br",
-    logoUrl: "", // User to upload
-    signatoryName: "Representante Kolbtec",
-    mobile: "+ 55 (00) 90000-0000",
-    secondaryEmail: "vendas@kolbtec.com.br"
+    name: "Builder Indústria e Comércio",
+    address: "Av Frederico A Ritter, 3670 - Cachoeirinha - RS - CEP: 94930-598",
+    phone: "+ 55 (51) 3471-1289",
+    email: "",
+    site: "www.builder.ind.br",
+    logoUrl: "",
+    signatoryName: "Departamento Comercial",
+    mobile: "",
+    secondaryEmail: ""
   },
   sections: [
     {
       id: '1',
       title: "Área 1",
-      areaSize: 100.00,
-      description: "Impermeabilização padrão",
+      areaSize: 4950.00,
+      description: "endurecedor de superfície Duratop SD",
+      consumption: "120g/m²",
       items: [
         {
           id: '101',
-          product: "Produto Exemplo",
-          description: "Descrição do material aplicado",
-          packagingType: "Galão",
-          packagingWeight: 18.000,
-          pricePerKg: 10.00,
-          ipi: 0,
-          icms: 0,
-          kits: 1
+          serviceName: "Duratop SD",
+          description: "Endurecedor de Superfície para piso",
+          unit: "kg",
+          packaging: "Parte A 231,000 kg",
+          quantity: 693.000,
+          unitPrice: 4.55,
+          taxIpi: 0,
+          taxIcms: 17,
+          kits: 3
         }
-      ],
-      supplemental: []
+      ]
     }
-  ],
-  globalExtras: [
-      { id: 'g1', description: "Frete Total", value: 0 }
   ],
   conditions: {
       payment: "A combinar",
-      freight: "CIF / FOB",
-      taxes: "Impostos inclusos",
-      minBilling: "R$ 1.000,00",
-      shipping: "Imediato",
-      validity: "15 dias"
+      freight: "CIF",
+      taxes: "Inclusos",
+      minBilling: "R$ 500,00",
+      shipping: "7 dias",
+      validity: "10 dias"
   },
-  notes: "O consumo de material é teórico, não cabendo a Kolbtec a responsabilidade por variações de consumo devido à variação de espessura, ancoragens, aplicação, imperfeições da superfície ou absorção do substrato, etc."
+  notes: "O consumo de material é teórico, não cabendo a Builder a responsabilidade por variações de consumo devido à variação de espessura, ancoragens, aplicação, imperfeições da superfície ou absorção do substrato, etc."
 };
