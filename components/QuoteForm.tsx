@@ -91,7 +91,7 @@ const QuoteForm: React.FC<QuoteFormProps> = ({ data, onChange, serviceDatabase }
     if (isRefining) return;
     setIsRefining(true);
     try {
-      const improved = await refineNotes(data.notes, "Impermeabilização e Construção Civil");
+      const improved = await refineNotes(data.notes, "Impermeabilização Kolbtec");
       onChange({ ...data, notes: improved });
     } finally {
       setIsRefining(false);

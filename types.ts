@@ -4,18 +4,12 @@ export interface QuoteItem {
   serviceName: string;
   description: string;
   unit: string; 
-  packaging: string; // Ex: Parte A 231,000 kg
-  quantity: number; // Quantidade total em kg
-  unitPrice: number; // R$ / kg
-  taxIpi: number; // %
-  taxIcms: number; // %
+  packaging: string; 
+  quantity: number; 
+  unitPrice: number; 
+  taxIpi: number; 
+  taxIcms: number; 
   kits: number;
-}
-
-export interface QuoteSupplemental {
-  id: string;
-  description: string;
-  value: number;
 }
 
 export interface QuoteSection {
@@ -23,7 +17,7 @@ export interface QuoteSection {
   title: string;
   areaSize: number; 
   description: string; 
-  consumption: string; // Ex: 120g/m²
+  consumption: string; 
   items: QuoteItem[];
 }
 
@@ -79,60 +73,60 @@ export interface QuoteData {
 }
 
 export const initialQuoteData: QuoteData = {
-  number: `VA ${new Date().getFullYear()}.11.21 036`,
+  number: `KT ${new Date().getFullYear()}.${String(new Date().getMonth() + 1).padStart(2, '0')}.${String(new Date().getDate()).padStart(2, '0')} 001`,
   date: new Date().toLocaleDateString('pt-BR'),
-  reference: `VA 2025.11.21 036`,
-  subject: "Proposta Comercial Builder",
-  salutation: "Prezado Sr Ranieri",
-  introText: "Conforme solicitado, enviamos abaixo nossa proposta de materiais, conforme descrição abaixo:",
+  reference: `REF ${new Date().getFullYear()}/001`,
+  subject: "PROPOSTA DE IMPERMEABILIZAÇÃO",
+  salutation: "Prezado Cliente,",
+  introText: "Agradecemos a oportunidade de apresentar nossa proposta comercial para os serviços e materiais descritos abaixo:",
   client: {
-    name: "Brava Pisos",
-    contact: "A/C Sr Ranieri",
-    phone: "(47) 99148 0070",
-    address: "",
-    email: ""
+    name: "Empresa Exemplo LTDA",
+    contact: "A/C Sr. Responsável",
+    phone: "(48) 99999-9999",
+    address: "Florianópolis, SC",
+    email: "cliente@exemplo.com.br"
   },
   company: {
-    name: "Builder Indústria e Comércio",
-    address: "Av Frederico A Ritter, 3670 - Cachoeirinha - RS - CEP: 94930-598",
-    phone: "+ 55 (51) 3471-1289",
-    email: "",
-    site: "www.builder.ind.br",
+    name: "Kolbtec Soluções em Impermeabilização",
+    address: "R. Profa. Rosinha Campos, 93 - Abraão, Florianópolis - SC, 88085-160",
+    phone: "(48) 3024-6909",
+    email: "kolbtec@kolbtec.com.br",
+    site: "www.kolbtec.com.br",
     logoUrl: "",
     signatoryName: "Departamento Comercial",
-    mobile: "",
-    secondaryEmail: ""
+    mobile: "(48) 3024-6909",
+    secondaryEmail: "kolbtec@kolbtec.com.br"
   },
   sections: [
     {
       id: '1',
       title: "Área 1",
-      areaSize: 4950.00,
-      description: "endurecedor de superfície Duratop SD",
-      consumption: "120g/m²",
+      areaSize: 100.00,
+      description: "IMPERMEABILIZAÇÃO COM MANTA ASFÁLTICA",
+      consumption: "",
       items: [
         {
           id: '101',
-          serviceName: "Duratop SD",
-          description: "Endurecedor de Superfície para piso",
-          unit: "kg",
-          packaging: "Parte A 231,000 kg",
-          quantity: 693.000,
-          unitPrice: 4.55,
+          serviceName: "SERVIÇO DE IMPERMEABILIZAÇÃO",
+          description: "",
+          unit: "M²",
+          packaging: "",
+          quantity: 100,
+          unitPrice: 85.50,
           taxIpi: 0,
-          taxIcms: 17,
-          kits: 3
+          taxIcms: 0,
+          kits: 1
         }
       ]
     }
   ],
   conditions: {
       payment: "A combinar",
-      freight: "CIF",
+      freight: "Incluso",
       taxes: "Inclusos",
       minBilling: "R$ 500,00",
-      shipping: "7 dias",
+      shipping: "Imediato",
       validity: "10 dias"
   },
-  notes: "O consumo de material é teórico, não cabendo a Builder a responsabilidade por variações de consumo devido à variação de espessura, ancoragens, aplicação, imperfeições da superfície ou absorção do substrato, etc."
+  notes: "O consumo de material é estimado, podendo variar conforme as condições do substrato e aplicação no local. A garantia dos serviços é de 05 anos conforme normas vigentes."
 };
